@@ -1,0 +1,15 @@
+# -*- ruby -*-
+
+require 'autotest/restart'
+require 'minitest/pride'
+
+begin
+  require 'autotest/fsevent'
+rescue LoadError
+end
+
+Autotest.add_hook :initialize do |at|
+  at.add_exception(/\.git/)
+  at.add_exception(/bundle$/)
+end
+

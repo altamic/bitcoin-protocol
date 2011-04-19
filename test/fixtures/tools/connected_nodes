@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# bitdump.sh
+#
+# Captures Bitcoin network traffic using netcat
+
+SELF=`basename $0`
+
+remote_nodes() {
+	netstat -an |
+	awk '/8333/ && /ESTA/ { print $5 }' |
+	sed 's/[:.]\(8333\)$//'
+}
+
+NODES=($(remote_nodes))
+
+for (( i = 0; i < ${#NODES[*]}; i++ )); do
+	echo ${NODES[i]}
+done

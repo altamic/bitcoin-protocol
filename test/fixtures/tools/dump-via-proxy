@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+
+# Captures raw Bitcoin network
+# traffic using a nc proxy
+
+SELF=`basename $0`
+
+remote_nodee() {
+	netstat -an |
+	awk '/8333/ && /ESTA/ { print $5 }' |
+	sed 's/[:.]\(8333\)$/ \1/'
+}
+
+filename() {
+	node=${1}
+	local name
+	# local timestamp
+	name="netdump"
+	# timestamp=$(date -u +"%Y-%m-%d_%H-%M")
+	# echo "${name}_for_${node}"
+	echo $name
+}
+
+# start a bitcoin instance
+# save its pid
+# wait 20 seconds
+# find connected nodes
+# if any kill bitcoin
+# set the proxy
+# launch proxified bitcoin as a demon
+# hostname_port service
+
+# netcat options
+NO_DNS="-n"
+# NODES=$(remote_nodes)
+NODES=(128.118.58.209)
+SOURCE='127.0.0.1'
+
+PORT=8333
+PROXY_PORT=13338
+PIPE_FILE='fifo'
+
+bitcoin -proxy=$SOURCE:$PROXY_PORT &
+
+# make the pipe
+if [[ -p $PIPE_FILE ]]; then
+	rm -f $PIPE_FILE
+else
+	mkfifo $PIPE_FILE
+fi
+
+if [[ -z "$NODES" ]]; then
+	echo "$SELF: No peer found, check your internet connection and that Bitcoin is running"
+else
+	for (( i = 0; i < ${#NODES[*]}; i++ )); do
+		# nc -l $PROXY_PORT < $PIPE_FILE | tee -a $(filename ${NODES[i]}).in.dump | nc ${NODES[i]} $PORT | tee -a $(filename ${NODES[i]}).out.dump 1> $PIPE_FILE &
+	done
+fi
+
