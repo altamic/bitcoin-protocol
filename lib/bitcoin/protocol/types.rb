@@ -14,7 +14,7 @@
 #     write(string)
 #
 # are available in the class/module where this module
-# is mixed in.
+# is mixed in, generally an IO object.
 #
 # The set of recognized names are exposed by OBJECTS and
 # COLLECTIONS constants.
@@ -82,8 +82,10 @@ module Bitcoin::Protocol
               end
             when :write then
               define_method "write_#{type}".to_sym do |buf|
+                write_encoded_object(type)
               end
               define_method "write_#{type}_vector".to_sym do |buf|
+                write_encoded_object_vector(type)
               end
             end
           end
@@ -171,35 +173,34 @@ module Bitcoin::Protocol
     end
 
     def read_encoded_object(type)
-      fail "Unknown #{type} type" if not @@mappings.keys.includes?(type)
+      fail "Unknown #{type} type" if not @@mappings.keys.include?(type)
       @@mappings[type].load(self)
     end
 
     def read_encoded_object_vector(type)
-      fail "Unknown #{type} type" if not @@mappings.keys.includes?(type)
-      result = []
+      fail "Unknown #{type} type" if not @@mappings.keys.include?(type)
+      result = ""
       read_encoded_size.times do
-        # read op of the given type
-        result.push(read_encoded_object(type))
+        result << read_encoded_object(type) # read op of the given type
       end
       result
     end
 
-    private :read_encoded_object, :read_encoded_object_vector
+    # private :read_encoded_object, :read_encoded_object_vector
 
     def write_encoded_object(type = :inventory)
-      fail "Unknown #{type} type" if not @@mappings.keys.includes?(type)
+      fail "Unknown #{type} type" if not @@mappings.keys.include?(type)
       @@mappings[type].dump(self)
     end
 
     def write_encoded_object_vector(type = :inventory)
-      fail "Unknown #{type} type" if not @@mappings.keys.includes?(type)
+      fail "Unknown #{type} type" if not @@mappings.keys.include?(type)
       read_encoded_size.times do
         write_encoded_object(type)
       end
     end
 
-    private :write_encoded_object, :write_encoded_object
+    # private :write_encoded_object, :write_encoded_object
 
     def read_uint256_vector
     end

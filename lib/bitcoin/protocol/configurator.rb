@@ -157,7 +157,7 @@ module Bitcoin::Protocol
         def attributes()  @@attributes = #{attributes.inspect} end
         def defaults()    @@defaults   = #{defaults.inspect} end
 
-        def initialize
+        def initialize(&block)
           super
           attributes.each do |attribute|
             send(\"\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
@@ -174,28 +174,19 @@ module Bitcoin::Protocol
                         end
         end
 
-        def load(buf)
-          attributes.each do |a|
-            if BtcProto.proper_type_names & [types[a]]
-              send("\#{types[a]}=", BtcProto.class_for(:type, types[a]).load(buf))
-            else
-              send("\#{types[a]}=", buf.send("read_\#{types[a]}"))
-            end
+        # obtain an object
+        def self.load(buf)
+          obj = new
+          obj.attributes.each do |a|
+            obj.send("\#{a}=", buf.send("read_\#{obj.types[a]}"))
           end
+          obj
         end
 
-        def dump(buf)
-          attributes.each do |a|
-            if BtcProto.proper_type_names.include?(types[a])
-              send(a).dump(buf)
-            else
-              buf.send("write_\#{types[a]}", send(a))
-            end
-          end
+        # obtain a string representation of the object
+        def self.dump(buf)
         end
 
-        def self.load()    new.load end
-        def self.dump(buf) new.dump end
       end
       EOS
 
@@ -223,7 +214,7 @@ module Bitcoin::Protocol
         def attributes()  @@attributes = #{attributes.inspect} end
         def defaults()    @@defaults   = #{defaults.inspect} end
 
-        def initialize
+        def initialize(&block)
           super
           attributes.each do |attribute|
             send(\"\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
@@ -233,26 +224,6 @@ module Bitcoin::Protocol
 
         # evaluated after initialization so it can reflect upon its own values
         def types()       @@types      = #{types.inspect} end
-
-        def load(buf)
-          attributes.each do |a|
-            if BtcProto.proper_type_names & [types[a]]
-              send("\#{types[a]}=", BtcProto.class_for(:type, types[a]).load(buf))
-            else
-              send("\#{types[a]}=", buf.send("read_\#{types[a]}"))
-            end
-          end
-        end
-
-        def dump(buf)
-          attributes.each do |a|
-            if BtcProto.proper_type_names.include?(types[a])
-              send(a).dump(buf)
-            else
-              buf.send("write_\#{types[a]}", send(a))
-            end
-          end
-        end
       end
       EOS
 

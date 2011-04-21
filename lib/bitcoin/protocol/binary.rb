@@ -255,7 +255,7 @@ module Bitcoin::Protocol
     # writes a number and pack it, swapping bytes as per endianness
     def write_pack(number, template, byte_order=NATIVE_BYTE_ORDER)
       str = [number].pack(template)
-      str.reverse! if not native_byte_order.equal? byte_order # blame Array#pack not me
+      str.reverse! if not native_byte_order.equal? byte_order # blame Array#pack
       write(str)
     end
 

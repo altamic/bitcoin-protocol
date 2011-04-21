@@ -36,7 +36,7 @@ Usage with Event Machine
 
 
 
-Configuring a new Message
+Configure a new Message
 -------------------------
 
 open and modify:

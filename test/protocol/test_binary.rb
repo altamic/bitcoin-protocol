@@ -83,6 +83,20 @@ class TestBinary < Bitcoin::TestCase
     assert_equal n, buf.read_uint64
   end
 
+  def test_write_uint64_little
+    # write_uint64_little(1)                 # services
+    n = 1
+    buf = BtcProto::Buffer.of_size(8) { write_uint64_little(n) }
+    assert_equal n, buf.read_uint64_little
+  end
+
+  def test_write_uint128_little
+    # write_uint128_network(0xFFFF00000000)  # ip_address
+    n = 0xFFFF00000000
+    buf = BtcProto::Buffer.of_size(16) { write_uint128_little(n) }
+    assert_equal n, buf.read_uint64_little
+  end
+
   def test_read_uint128_little
     n = rand(2**128)
     assert_equal 16, n.size

@@ -99,6 +99,25 @@ class TestTypes < Bitcoin::TestCase
     assert_equal bn_v, buf.read_encoded_bignum_vector
   end
 
+  def test_read_address
+    size = 1 + 8 + 16 + 2
+    buf = BtcProto::Buffer.of_size(1 + size) do
+      write_encoded_size(size)
+      write_uint64_little(1)             # services
+      write_uint128_big(0xFFFF00000000)  # ip_address
+      write_uint16_big(8333)             # port
+    end
+
+    values = [1, 0xFFFF00000000, 8333]
+    attributes = [:services, :ip_address, :port]
+
+    obj = BtcProto::Address.load(buf)
+    assert_instance_of BtcProto::Address, obj
+
+    assert_equal 1,              obj.services
+    assert_equal 0xFFFF00000000, obj.ip_address
+    assert_equal 8333,           obj.port
+  end
 end
 
 BtcProto::Types.mappings.each_pair do |name, klass|
