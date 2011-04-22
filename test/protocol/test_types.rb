@@ -101,7 +101,7 @@ class TestTypes < Bitcoin::TestCase
 
   def test_read_address
     size = 1 + 8 + 16 + 2
-    buf = BtcProto::Buffer.of_size(1 + size) do
+    buf = BtcProto::Buffer.of_size(size) do
       write_encoded_size(size)
       write_uint64_little(1)             # services
       write_uint128_big(0xFFFF00000000)  # ip_address

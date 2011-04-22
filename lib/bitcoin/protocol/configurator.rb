@@ -176,9 +176,12 @@ module Bitcoin::Protocol
 
         # obtain an object
         def self.load(buf)
+          buf.read_encoded_size # TODO: actually use it
           obj = new
           obj.attributes.each do |a|
-            obj.send("\#{a}=", buf.send("read_\#{obj.types[a]}"))
+            attr_writer = "\#{a}="
+            buffer_method = "read_\#{obj.types[a]}".to_sym
+            obj.send(attr_writer, buf.send(buffer_method))
           end
           obj
         end
