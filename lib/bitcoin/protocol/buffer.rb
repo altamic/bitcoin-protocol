@@ -6,8 +6,9 @@ module Bitcoin::Protocol
   # - read/write its content
   # - copy from a stream
   # - being initialized with a specified size
+  # - its length can't be modified after creation
   class Buffer
-    include BtcProto::Types # should not be namespaced in the future
+    include BtcProto::Types # namespaced?
 
     class Error < RuntimeError; end
     class EOF   < Error; end
@@ -89,6 +90,5 @@ module Bitcoin::Protocol
                :Binary => 'binary'
 
   register_lookup_modules :binary  => :Binary
-
 end
 

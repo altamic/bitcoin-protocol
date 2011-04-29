@@ -18,21 +18,11 @@ end
 
 module Bitcoin::Protocol
   module Message
-    # In this module we define the common behaviour
-    # for a protocol message
-    #
-    # - read a message from a stream
-    # - returns a particular message when found
-    # - a sequence of fields as class variables
-    # - hash of fields containing a serialization
-    #   type and a default value
-
     extend Crypto
 
-    class LoadError  ; end
-    class DumpError  ; end
-    class ValueNotAllowed < RuntimeError; end
+    HEADER_SIZE = 24
 
+    class ValueNotAllowed < RuntimeError; end
     class BadMagicNumber < ValueNotAllowed; end
     class UnknownCommand < ValueNotAllowed; end
     class BadPayload     < ValueNotAllowed; end
@@ -53,13 +43,13 @@ module Bitcoin::Protocol
                      :checksum     => :int32_little,
                      :payload      => [:fixed_string, :length] }
 
-    # it should define the header size
     def self.read(stream)
-      header       = Buffer.new(stream.read_exactly(4+12+4+4))
+      header       = Buffer.new(stream.read_exactly(HEADER_SIZE))
       magic_number = header.read_uint32_little
       fail BadMagicNumber if not BtcProto.lookup(:MAGIC).values.include?(magic_number)
-      network      = NETWORKS.index(magic_number)
+      network      = BtcProto::lookup(:MAGIC).index(magic_number)
       command      = header.read_fixed_size_string(12,:padding => 0.chr).to_sym
+      puts command
       fail UnknownCommand if not BtcProto.proper_message_names.include?(command)
       length       = header.read_int32_little
       checksum     = header.read_int32_little
@@ -68,6 +58,21 @@ module Bitcoin::Protocol
 
       BtcProto.class_for(command).load(payload)
     end
+
+
+    # In this module we define the common
+    # behaviour for a protocol message
+    #
+    # - read a message from a stream
+    # - returns a particular message when found
+    # - a sequence of fields as class variables
+    # - hash of fields containing a serialization
+    #   type and a default value
+
+    class LoadError  ; end
+    class DumpError  ; end
+    class ValueNotAllowed < RuntimeError; end
+    # it should define the header size
 
     def self.valid_payload?(content, checksum)
       doubleSHA256(content)[0..3] == checksum
@@ -89,30 +94,30 @@ module Bitcoin::Protocol
 
     alias :restore :load
 
-    def self.dump(buffer)
+    # def self.dump(buffer)
       # check if buffer size is ok before
-      marshal(:write, buffer)
-    end
+      # marshal(:write, buffer)
+    # end
 
-    def marshal(op, buffer)
-      case op
-      when :read
-        attributes.each do |attribute|
-          binary_op = "#{read}_#{types[attribute]}".to_sym
-          self.send("#{attribute}=", buffer.send(binary_op))
-        end
-      when :write
-        attributes.each do |attribute|
-          binary_op = "#{write}_#{types[attribute]}".to_sym
-          self.send("#{attribute}=", buffer.send(binary_op))
-        end
-      end
-    end
+    # def marshal(op, buffer)
+      # case op
+      # when :read
+        # attributes.each do |attribute|
+          # binary_op = "#{read}_#{types[attribute]}".to_sym
+          # self.send("#{attribute}=", buffer.send(binary_op))
+        # end
+      # when :write
+        # attributes.each do |attribute|
+          # binary_op = "#{write}_#{types[attribute]}".to_sym
+          # self.send("#{attribute}=", buffer.send(binary_op))
+        # end
+      # end
+    # end
 
-    private :marshal
+    # private :marshal
 
-    def size
-    end
+    # def size
+    # end
 
     # compute_checksum
     def compute_checksum

@@ -74,7 +74,7 @@ class TestTypes < Bitcoin::TestCase
 
   def test_write_encoded_bignum_vector
     bn_v = []
-    5.times { bn_v <<  rand(2**256) }
+    5.times { bn_v << rand(2**256) }
     buf = BtcProto::Buffer.of_size(256 + 3) do
       write_encoded_size(bn_v.size)
       bn_v.size.times {|i| write_uint256_little(bn_v[i])}
@@ -108,15 +108,62 @@ class TestTypes < Bitcoin::TestCase
       write_uint16_big(8333)             # port
     end
 
-    values = [1, 0xFFFF00000000, 8333]
-    attributes = [:services, :ip_address, :port]
-
     obj = BtcProto::Address.load(buf)
     assert_instance_of BtcProto::Address, obj
 
     assert_equal 1,              obj.services
     assert_equal 0xFFFF00000000, obj.ip_address
     assert_equal 8333,           obj.port
+  end
+
+  def test_read_outpoint
+    hash = rand(2**256)
+    size = 1 + 32 + 4
+
+    buf = BtcProto::Buffer.of_size(size) do
+      write_encoded_size(size)
+      write_uint256_little(hash)  # hash
+      write_uint32_little(size)   # size
+    end
+
+    obj = BtcProto::OutPoint.load(buf)
+    assert_instance_of BtcProto::OutPoint, obj
+    
+    assert_equal hash, obj.hash
+    assert_equal 37,   obj.size
+  end
+
+  def test_read_tx_input
+    # previous = BtcProto::OutPoint.new
+    # _buf     = BtcProto::Buffer.of_size(7)
+    # encoded_string = _buf.write_encoded_string('OP_NIL').dump
+    # _buf2    = BtcProto::Buffer.of_size(4)
+    # seq_num  = rand(2**32)
+    # sequence = _buf2.write_uint32_little(seq_num).dump
+
+    # out_point      :previous
+    # encoded_string :script_signature
+    # uint32_little  :sequence
+
+    # previous
+    # script_signature
+    # sequence
+  end
+
+  def test_read_tx_output
+
+  end
+
+  def test_read_inventory
+    
+  end
+
+  def test_block_locator
+    
+  end
+
+  def test_transaction
+    
   end
 end
 

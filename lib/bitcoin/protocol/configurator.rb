@@ -186,10 +186,15 @@ module Bitcoin::Protocol
           obj
         end
 
-        # obtain a string representation of the object
-        def self.dump(buf)
+        # return a string representation of the object
+        def dump
+          str = ""
+          attributes.each do |a|
+            str + "write_\#{types[a]}="
+            buffer_method = "write_\#{types[a]}".to_sym
+            send(attr_writer, buf.send(buffer_method))
+          end
         end
-
       end
       EOS
 

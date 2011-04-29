@@ -5,8 +5,7 @@
 #
 # Mappings can be configured to provide serialization and
 # size calculation functionality for external (vectors of)
-# data structures introduced in the original Bitcoin protocol
-# implementation.
+# data structures introduced by the original protocol.
 #
 # Types is a mixin and assumes that the following methods:
 #

@@ -4,11 +4,12 @@ class TestMessage < Bitcoin::TestCase
   def setup
     # TODO: collect more binary messages and generalize
     files = ['version.bin','inv.bin']
-    @io = File.open(File.join(fixture_path, files.last),'rb')
+    @io = File.open(File.join(fixture_path, files.first),'rb')
   end
-
-  # a message should be able to load itself using the payload
-  # a command should be able to dump itself
+  
+  def test_read_message_header
+    assert_instance_of BtcProto::Inv, BtcProto::Message.read(@io)
+  end
 
   # def test_read_instantiates_a_command
     # @io.seek(0)

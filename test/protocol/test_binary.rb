@@ -172,8 +172,8 @@ bytes_ary.each do |bytes|
     end
     [nil].each do |no_endian_specified|
       bits = bytes * 8
-      packing = { :bytes => bytes,
-                  :type => type,
+      packing = { :bytes  => bytes,
+                  :type   => type,
                   :endian => no_endian_specified }
 
       TestBinary.class_eval do

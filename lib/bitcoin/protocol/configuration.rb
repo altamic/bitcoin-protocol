@@ -9,7 +9,7 @@ Bitcoin::Protocol.configure do
 
   register_constant :DEFAULT_NETWORK, :production
 
-  register_constant :MAGIC,    :production   => 0xD9B4BEF9,
+  register_constant :MAGIC,    :production   => 0xF9BEB4D9,
                                :test         => 0xDAB5BFFA
   register_constant :SERVICES, :node_network => 1
 

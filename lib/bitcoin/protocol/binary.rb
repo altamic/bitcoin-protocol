@@ -230,7 +230,7 @@ module Bitcoin::Protocol
     def read_fixed_size_string(size, opt = {:padding => nil})
       str = @content[@position, size]
       @position += size
-      # opt[:padding] ? str.split_msb_lsb(opt[:padding]).first : str
+      # opt[:padding] ? str.split(opt[:padding]).first : str
       str
     end
 
