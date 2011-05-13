@@ -1,6 +1,7 @@
 module Bitcoin::Protocol
+##
+# read_nonblock
   module Binary
-
     # Returns the number of bytes used to encode an integer number
     INTEGER_SIZE_IN_BYTES = module_eval { 1.size }
     def integer_size_in_bytes() INTEGER_SIZE_IN_BYTES end
@@ -30,11 +31,13 @@ module Bitcoin::Protocol
 
     # uint16_network
     def read_uint16_network
-      readn_unpack(2, 'n', :big)
+      readn_unpack(2, 'n')
     end
 
     def write_uint16_network(number)
-      pack_write(number, 'S', :big)
+      str = [val].pack('S')
+      str.reverse! if little_endian_platform?
+      write(str)
     end
 
     # uint32_little
@@ -43,16 +46,18 @@ module Bitcoin::Protocol
     end
 
     def write_uint32_little(number)
-      pack_write(number, 'V', :little)
+      str = [val].pack('L')
+      str.reverse! if network_endian_platform?
+      write(str)
     end
 
     # int32_little
     def read_int32_little
-
+      ru_swap(4, 'l', :big)
     end
 
-    def write_int32_little
-
+    def write_int32_little(number)
+      
     end
 
     # uint64_little
@@ -60,7 +65,7 @@ module Bitcoin::Protocol
 
     end
 
-    def write_uint64_little
+    def write_uint64_little(number)
 
     end
 
@@ -69,7 +74,7 @@ module Bitcoin::Protocol
 
     end
 
-    def write_int64_little
+    def write_int64_little(number)
 
     end
 
@@ -78,7 +83,7 @@ module Bitcoin::Protocol
 
     end
 
-    def write_uint128_network
+    def write_uint128_network(number)
 
     end
     
@@ -87,38 +92,34 @@ module Bitcoin::Protocol
 
     end
 
-    def write_uint256_little
+    def write_uint256_little(number)
 
     end
 
     # read exactly n characters from the buffer, otherwise raise an exception.
     def readn(n)
-      buf = read(n)
-      raise EOFError if buf == nil
-      return buf if buf.size == n
-
-      n -= buf.size
-
-      while n > 0
-        str = read(n)
-        raise EOFError if str == nil
-        buf << str
-        n -= str.size
-      end
-      return buf
+      read_nonblock(n, '')
     end
 
-    # read n bytes and unpack, swapping as per endianness
-    def readn_unpack(size, template, byte_order=NATIVE_BYTE_ORDER)
+    private
+    def readn_unpack(size, template)
+      readn(size).unpack(template).first
+    end
+
+    def readn_unpack_swap(size, template, byteorder)
       str = readn(size)
-      str.reverse! if byte_order.equal? byte_order # spotted problem in pack
+      str.reverse! if native_byte_order.equal? byteorder
       str.unpack(template).first
     end
 
-    # writes a number and pack it, swapping bytes as per endianness
-    def pack_write(number, template, endianness)
+    # writes a number and pack it
+    def pack_write(number, template)
+      write([number].pack(template))
+    end
+
+    def pack_write_swap(number, template, byteorder)
       str = [number].pack(template)
-      str.reverse! if not endianness.equal? NATIVE_BYTE_ORDER
+      str.reverse! if native_byte_order.equal? byteorder
       write(str)
     end
 
