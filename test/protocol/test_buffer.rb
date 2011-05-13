@@ -13,6 +13,8 @@ class TestBuffer < Bitcoin::TestCase
   def setup
     content = 'crispelle al miele'
     @buf = BtcProto::Buffer.new(content)
+    files = ['version.bin','inv.bin']
+    @io = File.open(File.join(fixture_path, files.last),'rb')
   end
 
   def test_rewind_buffers_initialized_with_size
@@ -45,7 +47,7 @@ class TestBuffer < Bitcoin::TestCase
   end
 
   def test_raises_an_error_if_a_negative_index_is_given
-    assert_raises(ArgumentError) { @buf.position = -1}
+    assert_raises(ArgumentError) {@buf.position = -1}
   end
 
   def test_raises_an_error_if_an_out_of_bounds_index_is_given
@@ -62,6 +64,22 @@ class TestBuffer < Bitcoin::TestCase
       write_string("o pigghilu!")
     end
     assert buf.content.each_char.detect {|char| char == "\000" }
+  end
+
+  def test_can_read_an_header_from_io
+    buf = BtcProto::Buffer.new(@io.read(24))
+
+    magic_number = buf.read_uint32_little
+    assert BtcProto::lookup(:MAGIC).index(magic_number)
+
+    command      = buf.read_null_padded_string(12).to_sym
+    assert_equal :inv, command
+
+    # length       = buf.read_int32_little
+    # assert_equal length, 1715
+
+    # checksum     = read_int32_little
+
   end
 end
 

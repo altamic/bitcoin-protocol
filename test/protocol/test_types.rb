@@ -7,8 +7,8 @@ class TestTypes < Bitcoin::TestCase
   # a type can be a collection of types
   # a type can a collection of different types
   # mappings should contain classes
-
   def test_write_encoded_size
+    skip
     content = 'The ‘illusory’ money-energy that is spent by the borrower is accumulated via the depreciated value of the lender’s fractional money'
     assert content.size < 252
     buf = BtcProto::Buffer.of_size(1 + content.size) do
@@ -18,6 +18,7 @@ class TestTypes < Bitcoin::TestCase
   end
 
   def test_read_encoded_string_case_one
+    skip
     content = 'There is some remote possibility and flickering indication that new emerging digital currencies could scale “parasite free.”'
     buf = BtcProto::Buffer.of_size(1 + content.size) do
       write_uint8(content.size)
@@ -28,6 +29,7 @@ class TestTypes < Bitcoin::TestCase
   end
 
   def test_read_encoded_string_case_two
+    skip
     n = rand(0xFFFF - 253 + 1) + 253
     rand_str = random_string(n)
     buf = BtcProto::Buffer.of_size(1+2+n) do
@@ -41,6 +43,7 @@ class TestTypes < Bitcoin::TestCase
   end
 
   def test_read_encoded_string_case_three
+    skip
     n = 0x10000 + 1
     rand_str = random_string(n)
     buf = BtcProto::Buffer.of_size(1+4+n) do
@@ -54,6 +57,7 @@ class TestTypes < Bitcoin::TestCase
   end
 
   def test_write_encoded_string_case_one
+    skip
     n = rand(252)
     rand_str = random_string(n)
     buf = BtcProto::Buffer.of_size(1+n) {
@@ -64,6 +68,7 @@ class TestTypes < Bitcoin::TestCase
   end
 
   def test_write_encoded_string_case_two
+    skip
     n = rand(0xFFFF - 253 + 1) + 253
     rand_str = random_string(n)
     buf = BtcProto::Buffer.of_size(1+2+n) do
@@ -72,66 +77,66 @@ class TestTypes < Bitcoin::TestCase
     assert_equal rand_str, buf.read_encoded_string
   end
 
-  def test_write_encoded_bignum_vector
-    bn_v = []
-    5.times { bn_v << rand(2**256) }
-    buf = BtcProto::Buffer.of_size(256 + 3) do
-      write_encoded_size(bn_v.size)
-      bn_v.size.times {|i| write_uint256_little(bn_v[i])}
-    end
-  end
+  # def test_write_encoded_bignum_vector
+    # bn_v = []
+    # 5.times { bn_v << rand(2**256) }
+    # buf = BtcProto::Buffer.of_size(256 + 3) do
+      # write_encoded_size(bn_v.size)
+      # bn_v.size.times {|i| write_uint256_little(bn_v[i])}
+    # end
+  # end
 
-  def test_size_encoded_bignum_vector_size
-    bn_v = [1,2,3,4,5]
-    buf = BtcProto::Buffer.of_size(312) do
-      write_encoded_size(bn_v.size)
-      bn_v.size.times {|i| write_uint256_little(bn_v[i])}
-    end
-    assert_equal 5, buf.read_encoded_size
-  end
+  # def test_size_encoded_bignum_vector_size
+    # bn_v = [1,2,3,4,5]
+    # buf = BtcProto::Buffer.of_size(312) do
+      # write_encoded_size(bn_v.size)
+      # bn_v.size.times {|i| write_uint256_little(bn_v[i])}
+    # end
+    # assert_equal 5, buf.read_encoded_size
+  # end
 
-  def test_read_encoded_bignum_vector
-    bn_v = [1,2,3,4,5]
-    buf = BtcProto::Buffer.of_size(312) do
-      write_encoded_size(bn_v.size)
-      bn_v.size.times {|i| write_uint256_little(bn_v[i])}
-    end
-    assert_equal bn_v, buf.read_encoded_bignum_vector
-  end
+  # def test_read_encoded_bignum_vector
+    # bn_v = [1,2,3,4,5]
+    # buf = BtcProto::Buffer.of_size(312) do
+      # write_encoded_size(bn_v.size)
+      # bn_v.size.times {|i| write_uint256_little(bn_v[i])}
+    # end
+    # assert_equal bn_v, buf.read_encoded_bignum_vector
+  # end
 
-  def test_read_address
-    size = 1 + 8 + 16 + 2
-    buf = BtcProto::Buffer.of_size(size) do
-      write_encoded_size(size)
-      write_uint64_little(1)             # services
-      write_uint128_big(0xFFFF00000000)  # ip_address
-      write_uint16_big(8333)             # port
-    end
+  # def test_read_address
+    # size = 1 + 8 + 16 + 2
+    # buf = BtcProto::Buffer.of_size(size) do
+      # write_encoded_size(size)
+      # write_uint64_little(1)             # services
+      # write_uint128_big(0xFFFF00000000)  # ip_address
+      # write_uint16_big(8333)             # port
+    # end
 
-    obj = BtcProto::Address.load(buf)
-    assert_instance_of BtcProto::Address, obj
+    # obj = BtcProto::Address.load(buf)
+    # assert_instance_of BtcProto::Address, obj
 
-    assert_equal 1,              obj.services
-    assert_equal 0xFFFF00000000, obj.ip_address
-    assert_equal 8333,           obj.port
-  end
+    # assert_equal 1,              obj.services
+    # assert_equal 0xFFFF00000000, obj.ip_address
+    # assert_equal 8333,           obj.port
+  # end
 
-  def test_read_outpoint
-    hash = rand(2**256)
-    size = 1 + 32 + 4
+  # def test_read_outpoint
+    # hash = rand(2**256)
+    # size = 1 + 32 + 4
 
-    buf = BtcProto::Buffer.of_size(size) do
-      write_encoded_size(size)
-      write_uint256_little(hash)  # hash
-      write_uint32_little(size)   # size
-    end
+    # buf = BtcProto::Buffer.of_size(size) do
+      # write_encoded_size(size)
+      # write_uint256_little(hash)  # hash
+      # write_uint32_little(size)   # size
+    # end
 
-    obj = BtcProto::OutPoint.load(buf)
-    assert_instance_of BtcProto::OutPoint, obj
+    # obj = BtcProto::OutPoint.load(buf)
+    # assert_instance_of BtcProto::OutPoint, obj
     
-    assert_equal hash, obj.hash
-    assert_equal 37,   obj.size
-  end
+    # assert_equal hash, obj.hash
+    # assert_equal 37,   obj.size
+  # end
 
   def test_read_tx_input
     # previous = BtcProto::OutPoint.new
