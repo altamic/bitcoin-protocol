@@ -57,7 +57,7 @@ module Bitcoin::Protocol
     end
 
     def write_int32_little(number)
-      
+      pack_write(number, 'V')
     end
 
     # uint64_little

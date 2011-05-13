@@ -31,6 +31,7 @@ class TestBinary < Bitcoin::TestCase
   end
 
   def test_write_uint32_little
+    skip
     const = BtcProto.lookup([:MAGIC, :production])
     @version_message2.tap do |f|
       f.extend(BtcProto::Binary)
