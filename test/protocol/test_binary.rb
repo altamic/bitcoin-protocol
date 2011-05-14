@@ -5,6 +5,8 @@ class TestBinary < Bitcoin::TestCase
     @hex_number = 0xCAFEBABE
     @version_message = File.open(File.join(fixture_path, 'version.bin'))
     @version_message2 = File.open(File.join(fixture_path, 'version2.bin'), 'w+')
+
+    @magic = BtcProto.lookup([:MAGIC, :production])
   end
 
   def host_endianness
@@ -26,19 +28,17 @@ class TestBinary < Bitcoin::TestCase
 
   def test_read_uint32_little
     @version_message.extend(BtcProto::Binary)
-    const = BtcProto.lookup([:MAGIC, :production])
-    assert_equal const, @version_message.read_uint32_little
+    assert_equal @magic, @version_message.read_uint32_little
   end
 
   def test_write_uint32_little
     skip
-    const = BtcProto.lookup([:MAGIC, :production])
-    @version_message2.tap do |f|
-      f.extend(BtcProto::Binary)
-      f.rewind
-      f.write_uint32_little(const)
-      assert_equal const, f.read_uint32_little
-      f.close
+    @version_message2.tap do |m|
+      m.extend(BtcProto::Binary)
+      m.rewind
+      m.write_uint32_little(@magic)
+      assert_equal @magic, f.read_uint32_little
+      m.close
     end
   end
 

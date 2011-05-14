@@ -42,11 +42,11 @@ module Bitcoin::Protocol
 
     # uint32_little
     def read_uint32_little
-      readn_unpack(4, 'V')
+      readn_unpack_swap(4, 'V', :little)
     end
 
     def write_uint32_little(number)
-      str = [val].pack('L')
+      str = [number].pack('L')
       str.reverse! if network_endian_platform?
       write(str)
     end
