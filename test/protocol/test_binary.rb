@@ -4,7 +4,7 @@ class TestBinary < Bitcoin::TestCase
   def setup
     @hex_number = 0xCAFEBABE
     @version_message = File.open(File.join(fixture_path, 'version.bin'))
-    @version_message2 = File.open(File.join(fixture_path, 'version2.bin'), 'w+')
+    @version_message2 = File.open(File.join(fixture_path, 'version2.bin'), 'rb+')
 
     @magic = BtcProto.lookup([:MAGIC, :production])
   end
@@ -32,15 +32,31 @@ class TestBinary < Bitcoin::TestCase
   end
 
   def test_write_uint32_little
-    skip
     @version_message2.tap do |m|
       m.extend(BtcProto::Binary)
       m.rewind
       m.write_uint32_little(@magic)
-      assert_equal @magic, f.read_uint32_little
-      m.close
+      m.rewind
+      assert_equal @magic, m.read_uint32_little
     end
   end
+
+  def test_read_uint64_little
+    @version_message2.tap do |m|
+      m.extend(BtcProto::Binary)
+      m.pos = 28
+      value = m.read_uint64_little
+      assert_equal 1, value
+    end
+
+
+  end
+  
+  def test_write_uint64_little
+    
+
+  end
+
 
   def teardown
     [@version_message, @version_message2].each {|m| m.close}

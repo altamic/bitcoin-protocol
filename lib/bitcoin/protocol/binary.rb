@@ -1,6 +1,4 @@
 module Bitcoin::Protocol
-##
-# read_nonblock
   module Binary
     # Returns the number of bytes used to encode an integer number
     INTEGER_SIZE_IN_BYTES = module_eval { 1.size }
@@ -42,11 +40,12 @@ module Bitcoin::Protocol
 
     # uint32_little
     def read_uint32_little
-      readn_unpack_swap(4, 'V', :little)
+      readn_reverse_unpack(4, 'V')
     end
 
+    #
     def write_uint32_little(number)
-      str = [number].pack('L')
+      str = [number].pack('N')
       str.reverse! if network_endian_platform?
       write(str)
     end
@@ -60,13 +59,24 @@ module Bitcoin::Protocol
       pack_write(number, 'V')
     end
 
-    # uint64_little
+    # 64-bit unsigned integer
+    # unpack format: Q
+    # c-type: uint64_t
+    # Byte order: Native
     def read_uint64_little
-
+      if little_endian_platform?
+        readn_unpack(8, 'Q')
+      else
+        readn_reverse_unpack(8, 'Q')
+      end
     end
 
     def write_uint64_little(number)
-
+      if little_endian_platform?
+        pack_write(number, 'Q')
+      else
+        pack_reverse_write(number, 'Q')
+      end
     end
 
     # int64_little
@@ -106,9 +116,9 @@ module Bitcoin::Protocol
       readn(size).unpack(template).first
     end
 
-    def readn_unpack_swap(size, template, byteorder)
+    def readn_reverse_unpack(size, template)
       str = readn(size)
-      str.reverse! if native_byte_order.equal? byteorder
+      str.reverse!
       str.unpack(template).first
     end
 
@@ -117,15 +127,10 @@ module Bitcoin::Protocol
       write([number].pack(template))
     end
 
-    def pack_write_swap(number, template, byteorder)
+    def pack_reverse_write(number, template)
       str = [number].pack(template)
-      str.reverse! if native_byte_order.equal? byteorder
+      str.reverse!
       write(str)
-    end
-
-    def read_null_padded_string(size)
-      str = readn(size)
-      str.split(/\000/).first or str
     end
   end
 end

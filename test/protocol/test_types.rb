@@ -172,13 +172,13 @@ class TestTypes < Bitcoin::TestCase
   end
 end
 
-BtcProto::Types.mappings.each_pair do |name, klass|
-  test_name = "test_#{name}_is_mapped_to_a_class"
-  TestTypes.class_eval do
-    define_method(test_name) do
-      assert name.is_a? Symbol
-      assert_equal Class, klass.class
-    end
-  end
-end
+# BtcProto::Types.mappings.each_pair do |name, klass|
+  # test_name = "test_#{name}_is_mapped_to_a_class"
+  # TestTypes.class_eval do
+    # define_method(test_name) do
+      # assert name.is_a? Symbol
+      # assert_equal Class, klass.class
+    # end
+  # end
+# end
 
