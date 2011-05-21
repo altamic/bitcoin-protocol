@@ -157,10 +157,13 @@ module Bitcoin::Protocol
         def attributes()  @@attributes = #{attributes.inspect} end
         def defaults()    @@defaults   = #{defaults.inspect} end
 
-        def initialize(&block)
+        def initialize(hash={}, &block)
           super
           attributes.each do |attribute|
-            send(\"\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
+            send("\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
+          end
+          hash.keys.each do |key|
+            send("\#{key}=", hash[key]) if self.respond_to? key
           end
           instance_eval(&block) if block_given?
         end
@@ -217,21 +220,32 @@ module Bitcoin::Protocol
       defaults     = defaults_for(:message,   message)
       types        = types_for(:message,      message)
 
+
       self.module_eval <<-EOS, __FILE__, __LINE__ + 1
       class #{klass} < Struct.new('#{klass}'#{struct_attrs})
         def attributes()  @@attributes = #{attributes.inspect} end
         def defaults()    @@defaults   = #{defaults.inspect} end
 
-        def initialize(&block)
+        def initialize(hash={}, &block)
           super
           attributes.each do |attribute|
-            send(\"\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
+            send("\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
+          end
+          hash.keys.each do |key|
+            send("\#{key}=", hash[key]) if self.respond_to? key
           end
           instance_eval(&block) if block_given?
         end
 
         # evaluated after initialization so it can reflect upon its own values
         def types()       @@types      = #{types.inspect} end
+
+        private
+        def init(attrs, defaults)
+          attrs.each do |attrib|
+            send("\#{attrib}=", Bitcoin::Protocol.lookup(defaults[attrib]))
+          end
+        end
       end
       EOS
 

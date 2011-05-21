@@ -1,5 +1,10 @@
 require 'helper'
 
+#
+# a message should be initialized with an Hash
+#
+
+
 class TestMessage < Bitcoin::TestCase
   def setup
     # TODO: collect more binary messages and generalize

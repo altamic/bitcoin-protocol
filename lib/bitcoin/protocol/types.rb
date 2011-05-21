@@ -1,25 +1,30 @@
-# This module provides methods to handle:
+# Types module is able to handle:
 #
-#   - types (de)serialization
-#   - types size calculation
+#   - (de)serialization
+#   - size calculation
 #
-# Mappings can be configured to provide serialization and
-# size calculation functionality for external (vectors of)
+# for the peculiar types introduced by Bitcoin. Mappings
+# can be configured to provide serialization and size
+# calculation functionality for external (vectors of)
 # data structures introduced by the original protocol.
 #
-# Types is a mixin and assumes that the following methods:
+# The module is a mixin and assumes that the following
+# methods:
 #
 #     read(n_bytes)
 #     write(string)
 #
-# are available in the class/module where this module
-# is mixed in, generally an IO object.
+# are available in the class/module, generally an IO object,
+# extended by this module.
+#
+# Moreover serialization is assumed to be provided by
+# the mapped object via load() and dump() methods.
 #
 # The set of recognized names are exposed by OBJECTS and
 # COLLECTIONS constants.
 #
 # By including Binary mixin --and sharing its the very same
-# interface, Types provides dynamically common methods
+# interface, Types provide dynamically common methods
 # for reading/writing from/to binary buffer streams.
 # Read about Binary mixin for more information.
 #
