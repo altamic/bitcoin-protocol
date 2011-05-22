@@ -158,7 +158,6 @@ module Bitcoin::Protocol
         def defaults()    @@defaults   = #{defaults.inspect} end
 
         def initialize(hash={}, &block)
-          super
           attributes.each do |attribute|
             send("\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
           end
@@ -221,7 +220,6 @@ module Bitcoin::Protocol
         def defaults()    @@defaults   = #{defaults.inspect} end
 
         def initialize(hash={}, &block)
-          # super
           attributes.each do |attribute|
             send("\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
           end
