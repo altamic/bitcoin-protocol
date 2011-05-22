@@ -152,7 +152,7 @@ module Bitcoin::Protocol
       defaults     =          defaults_for(:type, type)
       types        =             types_for(:type, type)
 
-      self.module_eval <<-EOS, __FILE__, __LINE__ + 1
+      self.module_eval <<-EVAL, __FILE__, __LINE__ + 1
       class #{klass} < Struct.new('#{klass}'#{struct_attrs})
         def attributes()  @@attributes = #{attributes.inspect} end
         def defaults()    @@defaults   = #{defaults.inspect} end
@@ -170,12 +170,6 @@ module Bitcoin::Protocol
 
         # evaluated after initialization so it can reflect upon its own values
         def types()       @@types      = #{types.inspect} end
-
-        def bytesize
-          @bytesize ||= attributes.each.inject(0) do |acc, attr|
-                          acc += BtcProto::Binary.size_of(types[attr], self)
-                        end
-        end
 
         # obtain an object
         def self.load(buf)
@@ -199,7 +193,7 @@ module Bitcoin::Protocol
           end
         end
       end
-      EOS
+      EVAL
 
       type_classes.merge!(type => Bitcoin::Protocol.const_get(klass))
     end
@@ -221,13 +215,13 @@ module Bitcoin::Protocol
       types        = types_for(:message,      message)
 
 
-      self.module_eval <<-EOS, __FILE__, __LINE__ + 1
+      self.module_eval <<-EVAL, __FILE__, __LINE__ + 1
       class #{klass} < Struct.new('#{klass}'#{struct_attrs})
         def attributes()  @@attributes = #{attributes.inspect} end
         def defaults()    @@defaults   = #{defaults.inspect} end
 
         def initialize(hash={}, &block)
-          super
+          # super
           attributes.each do |attribute|
             send("\#{attribute}=", Bitcoin::Protocol.lookup(defaults[attribute]))
           end
@@ -247,7 +241,7 @@ module Bitcoin::Protocol
           end
         end
       end
-      EOS
+      EVAL
 
       self.messages[:classes].
         merge!(message => Bitcoin::Protocol.const_get(klass))

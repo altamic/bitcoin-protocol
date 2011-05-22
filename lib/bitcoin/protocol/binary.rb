@@ -126,7 +126,11 @@ module Bitcoin::Protocol
 
     # read exactly n characters from the buffer, otherwise raise an exception.
     def readn(n)
-      read_nonblock(n, '')
+      if respond_to? :read_nonblock
+        read_nonblock(n, '')
+      else
+        read(n,'')
+      end
     end
 
     private
