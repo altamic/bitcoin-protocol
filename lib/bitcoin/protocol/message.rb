@@ -46,20 +46,17 @@ module Bitcoin::Protocol
     def self.read(stream)
       header       = Buffer.new(stream.read_exactly(HEADER_SIZE))
       magic_number = header.read_uint32_little
-      puts magic_number if not 4 == header.position
       fail BadMagicNumber if not BtcProto.lookup(:MAGIC).values.include?(magic_number)
       network      = BtcProto::lookup(:MAGIC).index(magic_number)
       command      = header.read_null_padded_string(12).to_sym
-      puts command if not header.position  == 16
       fail UnknownCommand if not BtcProto.proper_message_names.include?(command)
       length       = header.read_int32_little
-      puts length if 20 == header.position
       checksum     = header.read_int32_little
-      puts checksum if not 24 == header.position
       payload      = stream.read_exactly(length)
       fail BadPaylod if not valid_payload?(payload, [checksum].pack('V'))
 
-      BtcProto.class_for(command).load(payload)
+      puts "#{command} net:#{network} len:#{length} cksum:#{checksum}"
+      BtcProto.class_for(command).new.load(payload)
     end
 
 

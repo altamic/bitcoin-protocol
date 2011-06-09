@@ -27,6 +27,50 @@ module Bitcoin::Protocol
     def big_endian_platform?()    native_byte_order.equal? :big end
     alias :network_endian_platform? :big_endian_platform?
 
+
+    # Types required by the Bitcoin protocol are the following:
+    #  - uint 128 bits network endian for the IPv6 network address;
+    #  - uint  16 bits network endian for the port address;
+    #  - uint/int 32, uint/int 64, uint 256 bits little endian for
+    #    any other type.
+
+    # uint128_network
+    def read_uint128_network
+      if little_endian_platform?
+        lsb = readn_reverse_unpack(8, 'Q')
+        msb = readn_reverse_unpack(8, 'Q')
+      else
+        msb = readn_unpack(8, 'Q')
+        lsb = readn_unpack(8, 'Q')
+      end
+      ((msb >> 64) + lsb)
+    end
+    alias_method :read_uint128_big, :read_uint128_network
+
+
+    def write_uint128_network(integer)
+      mask64_bits = 0xFFFFFFFFFFFFFFFF
+      msb = (integer & mask64_bits)
+      lsb = (integer >> 64) & mask64_bits
+      if little_endian_platform?
+        pack_reverse_write(msb, 'Q')
+        pack_reverse_write(lsb, 'Q')
+      else
+        pack_write(msb, 'Q')
+        pack_write(lsb, 'Q')
+      end
+    end
+    alias_method :write_uint128_big, :write_uint128_network
+
+
+    def read_uint8
+      readn_unpack(1, 'C')
+    end
+
+    def write_uint8(char)
+      [char].pack('C')
+    end
+
     # uint16_network
     def read_uint16_network
       readn_unpack(2, 'n')
@@ -47,7 +91,6 @@ module Bitcoin::Protocol
       readn_reverse_unpack(4, 'V')
     end
 
-    #
     def write_uint32_little(integer)
       str = [integer].pack('N')
       str.reverse! if network_endian_platform?
@@ -104,33 +147,29 @@ module Bitcoin::Protocol
       end
     end
 
-    # uint128_network
-    def read_uint128_network
-       msb = read_uint64
-       lsb = read_uint64
-       return ((msb >> 64) + lsb)
-    end
-
-    def write_uint128_network(integer)
-      # write_uint64_()
-    end
-    
+   
     # uint256_little
     def read_uint256_little
-
+      # use ...
     end
+    alias_method :read_bignum_little, :read_uint256_little
 
     def write_uint256_little(integer)
 
     end
+    alias_method :write_bignum_little, :write_uint256_little
 
     # read exactly n characters from the buffer, otherwise raise an exception.
     def readn(n)
       if respond_to? :read_nonblock
-        read_nonblock(n, '')
+        read_nonblock(n)
       else
-        read(n,'')
+        read(n)
       end
+    end
+
+    def read_null_padded_string(size)
+      readn(size).split(/\000/).first
     end
 
     private

@@ -186,9 +186,10 @@ module Bitcoin::Protocol
         def dump
           str = ""
           attributes.each do |a|
+            attr_writer = "\#{a}="
             str + "write_\#{types[a]}="
             buffer_method = "write_\#{types[a]}".to_sym
-            send(attr_writer, buf.send(buffer_method))
+            send(attr_writer, send(buffer_method))
           end
         end
       end

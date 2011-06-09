@@ -29,7 +29,7 @@
 # Read about Binary mixin for more information.
 #
 # Types performs operations recognized by the following
-# grammars:
+# grammar:
 #
 #  operations   ::= 'read' | 'write'
 #  btc_encoding ::= 'encoded' | 'vector'
@@ -45,7 +45,7 @@ module Bitcoin::Protocol
 
     # Mapping between a type name and a class is configured externally
     # through an hash containing associations. The associated class is
-    # supposed to provide a load and a dump methods to be employed by,
+    # supposed to provide load and dump methods. They are called by,
     # respectively, read_encoded_object and write_encoded_object.
     class << self
       def mappings()

@@ -41,6 +41,18 @@ class TestBinary < Bitcoin::TestCase
     end
   end
 
+  def test_int32_little
+    number  = -3212
+    require 'stringio'
+    str = StringIO.open "" do |s|
+      s.extend(BtcProto::Binary)
+      s.write_int32_little(number)
+      s.rewind
+      assert_equal number, s.read_int32_little
+    end
+
+  end
+
   def test_read_uint64_little
     @version_message2.tap do |m|
       m.pos = 40
@@ -73,6 +85,17 @@ class TestBinary < Bitcoin::TestCase
       m.rewind
       value = m.read_uint16_network
       assert_equal 63934, value
+    end
+  end
+
+  def test_uint128_network
+    ip_addr = 0x080001103040417e7
+    require 'stringio'
+    str = StringIO.open "" do |s|
+      s.extend(BtcProto::Binary)
+      s.write_uint128_network(ip_addr)
+      s.rewind
+      assert_equal ip_addr, s.read_uint128_network
     end
   end
 
