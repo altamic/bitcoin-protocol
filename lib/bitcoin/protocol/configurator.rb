@@ -233,6 +233,18 @@ module Bitcoin::Protocol
         # evaluated after initialization so it can reflect upon its own values
         def types()       @@types      = #{types.inspect} end
 
+        # obtain an object
+        def self.load(buf)
+          # buf.read_encoded_size # TODO: actually use it
+          obj = new
+          obj.attributes.each do |a|
+            attr_writer = "\#{a}="
+            buffer_method = "read_\#{obj.types[a]}".to_sym
+            obj.send(attr_writer, buf.send(buffer_method))
+          end
+          obj
+        end
+
         private
         def init(attrs, defaults)
           attrs.each do |attrib|

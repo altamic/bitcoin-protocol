@@ -44,7 +44,7 @@ module Bitcoin::Protocol
                      :payload      => [:fixed_string, :length] }
 
     def self.read(stream)
-      header       = Buffer.new(stream.read_exactly(HEADER_SIZE))
+      header       = Buffer.new(stream.readn(HEADER_SIZE))
       magic_number = header.read_uint32_little
       fail BadMagicNumber if not BtcProto.lookup(:MAGIC).values.include?(magic_number)
       network      = BtcProto::lookup(:MAGIC).index(magic_number)
@@ -52,11 +52,11 @@ module Bitcoin::Protocol
       fail UnknownCommand if not BtcProto.proper_message_names.include?(command)
       length       = header.read_int32_little
       checksum     = header.read_int32_little
-      payload      = stream.read_exactly(length)
-      fail BadPaylod if not valid_payload?(payload, [checksum].pack('V'))
+      payload      = Buffer.new(stream.read_exactly(length))
+      fail BadPaylod if not valid_payload?(payload.content, [checksum].pack('V'))
 
-      puts "#{command} net:#{network} len:#{length} cksum:#{checksum}"
-      BtcProto.class_for(command).new.load(payload)
+      puts "#{command} net:#{network} len:#{length} chksum:#{checksum}"
+      BtcProto.class_for(:message, command).load(payload)
     end
 
 

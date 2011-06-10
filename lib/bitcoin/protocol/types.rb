@@ -183,9 +183,9 @@ module Bitcoin::Protocol
 
     def read_encoded_object_vector(type)
       fail "Unknown #{type} type" if not @@mappings.keys.include?(type)
-      result = ""
+      result = []
       read_encoded_size.times do
-        result << read_encoded_object(type) # read op of the given type
+        result.push(read_encoded_object(type)) # read op of the given type
       end
       result
     end
