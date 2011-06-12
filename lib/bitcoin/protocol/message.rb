@@ -51,11 +51,13 @@ module Bitcoin::Protocol
       command      = header.read_null_padded_string(12).to_sym
       fail UnknownCommand if not BtcProto.proper_message_names.include?(command)
       length       = header.read_int32_little
-      checksum     = header.read_int32_little
-      payload      = Buffer.new(stream.read_exactly(length))
-      fail BadPaylod if not valid_payload?(payload.content, [checksum].pack('V'))
+      checksum     = [header.read_int32_little].pack('V')
+      payload      = Buffer.new(stream.read_exactly(length)).content
+      fail BadPaylod if not valid?(payload, checksum)
 
-      puts "#{command} net:#{network} len:#{length} chksum:#{checksum}"
+      puts "msg:#{command} net:#{network} len:#{length} " +
+           "valid_payload? #{valid?(payload, checksum)}"
+
       BtcProto.class_for(:message, command).load(payload)
     end
 
@@ -74,8 +76,8 @@ module Bitcoin::Protocol
     class ValueNotAllowed < RuntimeError; end
     # it should define the header size
 
-    def self.valid_payload?(content, checksum)
-      doubleSHA256(content)[0..3] == checksum
+    def self.valid?(payload, checksum)
+      doubleSHA256(payload)[0..3] == checksum
     end
 
     def self.compute_checksum_for(content)

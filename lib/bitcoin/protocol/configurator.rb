@@ -244,13 +244,6 @@ module Bitcoin::Protocol
           end
           obj
         end
-
-        private
-        def init(attrs, defaults)
-          attrs.each do |attrib|
-            send("\#{attrib}=", Bitcoin::Protocol.lookup(defaults[attrib]))
-          end
-        end
       end
       EVAL
 

@@ -13,7 +13,7 @@ module Bitcoin::Protocol
     # LSB. We evaluate the first byte of the integer 1 packed as an integer.
     # first_byte is a Fixnum in Ruby 1.8.x, while it is a string in 1.9.x;
     # in latter case we employ the ord method to obtain the ordinal integer
-    # associated, underlying machine is l.e. if the LSB is 1.
+    # associated; the underlying machine is l.e. if the LSB is 1.
 
     NATIVE_BYTE_ORDER = module_eval do
       first_byte = [1].pack('i')[0]
