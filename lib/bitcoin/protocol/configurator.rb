@@ -187,7 +187,7 @@ module Bitcoin::Protocol
           str = ""
           attributes.each do |a|
             attr_writer = "\#{a}="
-            str + "write_\#{types[a]}="
+            "write_\#{types[a]}="
             buffer_method = "write_\#{types[a]}".to_sym
             send(attr_writer, send(buffer_method))
           end
