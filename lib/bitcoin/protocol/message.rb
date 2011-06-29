@@ -53,7 +53,7 @@ module Bitcoin::Protocol
       length       = header.read_int32_little
       checksum     = [header.read_int32_little].pack('V')
       payload      = Buffer.new(stream.read_exactly(length)).content
-      fail BadPaylod if not valid?(payload, checksum)
+      fail BadPayload if not valid?(payload, checksum)
 
       puts "msg:#{command} net:#{network} len:#{length} " +
            "valid_payload? #{valid?(payload, checksum)}"
@@ -121,9 +121,6 @@ module Bitcoin::Protocol
     # def size
     # end
 
-    # compute_checksum
-    def compute_checksum
-    end
   end
 end
 

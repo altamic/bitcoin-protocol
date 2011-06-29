@@ -154,7 +154,7 @@ module Bitcoin::Protocol
     end
 
     def write_encoded_bignum_vector(bignum_array)
-      raise ArgumentError, 'array required' if not bignum_array.respond_to? :each
+      raise ArgumentError, 'Array required' if not bignum_array.respond_to? :each
       write_encoded_size(bignum_array.size)
       bignum_array.each do |bignum|
         raise ArgumentError if not bignum.kind_of? Integer
