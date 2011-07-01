@@ -3,9 +3,10 @@ require 'helper'
 class TestBinary < Bitcoin::TestCase
   def setup
     @hex_number = 0xCAFEBABE
-    @version_message = File.open(File.join(fixture_path, 'version.bin'))
+    @version_message  = File.open(File.join(fixture_path, 'version.bin'))
     @version_message2 = File.open(File.join(fixture_path, 'version2.bin'), 'rb+')
-    [@version_message, @version_message2].each { |f|
+    @inv_message      = File.open(File.join(fixture_path, 'inv.bin'))
+    [@version_message, @version_message2, @inv_message].each { |f|
       f.extend(BtcProto::Binary)
     }
     @magic = BtcProto.lookup([:MAGIC, :production])
@@ -75,6 +76,15 @@ class TestBinary < Bitcoin::TestCase
       m.rewind
       value = m.read_uint16_network
       assert_equal 63934, value
+    end
+  end
+
+  def test_read_uint256_little
+    expected = 612369115874780183281957418928035455470403289813678177719817933
+    @inv_message.tap do |m|
+      m.seek(23) # first hash block
+      actual = m.read_uint256_little
+      assert_equal expected, actual
     end
   end
 

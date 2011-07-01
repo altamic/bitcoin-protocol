@@ -55,10 +55,7 @@ module Bitcoin::Protocol
       payload      = Buffer.new(stream.read_exactly(length)).content
       fail BadPayload if not valid?(payload, checksum)
 
-      puts "msg:#{command} net:#{network} len:#{length} " +
-           "valid_payload? #{valid?(payload, checksum)}"
-
-      BtcProto.class_for(:message, command).load(payload)
+      BtcProto.class_for(:message, command).load(Buffer.new(payload))
     end
 
 

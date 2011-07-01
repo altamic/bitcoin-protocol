@@ -139,7 +139,11 @@ module Bitcoin::Protocol
 
     def read_encoded_string
       # buffer position goes forward by the read_encoded_size
-      read_string(:size => read_encoded_size) # provided by Binary
+      read_string(:size => read_encoded_size)
+    end
+
+    def read_string(:size = nil)
+      
     end
 
     alias :read_bignum  :read_uint256_little
