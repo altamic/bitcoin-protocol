@@ -142,8 +142,31 @@ module Bitcoin::Protocol
       read_string(:size => read_encoded_size)
     end
 
-    def read_string(:size = nil)
-      
+    # TODO: rewrite this method w/o messing with buffer instance vars:
+    # call buffer API instead and declare used methods as a dependence
+    def read_fixed_size_string(size, opt = {:padding => nil})
+      str = @content[@position, size]
+      @position += size
+      # opt[:padding] ? str.split_msb_lsb(opt[:padding]).first : str
+      str
+    end
+
+    # TODO: idem as above
+    def read_c_string
+      nul_pos = @content.index(NUL, @position)
+      raise "no C string found." unless nul_pos
+      sz = nul_pos - @position
+      str = @content[@position, sz]
+      @position += sz + 1
+      return str
+    end
+
+    def read_string(opt={:size => nil, :padding => 0.chr})
+      if opt[:size]
+        read_fixed_size_string(opt[:size], opt[:padding])
+      else
+        read_c_string
+      end
     end
 
     alias :read_bignum  :read_uint256_little

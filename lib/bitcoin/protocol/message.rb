@@ -32,7 +32,7 @@ module Bitcoin::Protocol
 
     # adds these to the singleton through configuration
     @@attributes = [ :magic_number, :command, :length, :checksum, :payload ]
-    @@defaults   = { :magic_number => [:MAGIC, BtcProto.current_network],
+    @@defaults   = { :magic_number => [:MAGIC, ::BtcProto.current_network],
                      :command      => :verack,
                      :length       => 0,
                      :checksum     => 0,
