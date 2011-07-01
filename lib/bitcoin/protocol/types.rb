@@ -153,7 +153,7 @@ module Bitcoin::Protocol
 
     # TODO: idem as above
     def read_c_string
-      nul_pos = @content.index(NUL, @position)
+      nul_pos = @content.index(0.chr, @position)
       raise "no C string found." unless nul_pos
       sz = nul_pos - @position
       str = @content[@position, sz]

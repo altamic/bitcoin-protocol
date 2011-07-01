@@ -148,7 +148,7 @@ module Bitcoin::Protocol
 
     # uint256_little
     def read_uint256_little
-        if little_endian_platform?
+      if little_endian_platform?
         lsb1 = readn_reverse_unpack(8, 'Q')
         lsb2 = readn_reverse_unpack(8, 'Q')
         msb1 = readn_reverse_unpack(8, 'Q')
@@ -159,7 +159,8 @@ module Bitcoin::Protocol
         lsb2 = readn_unpack(8, 'Q')
         lsb1 = readn_unpack(8, 'Q')
       end
-      (msb2 >> 192) + (msb1 >> 128) + (lsb2 >> 64) + (lsb1 >> 0)
+      # (msb2 >> 192) + (msb1 >> 128) + (lsb2 >> 64) + (lsb1 >> 0)
+      "#{msb2}#{msb1}#{lsb2}#{lsb1}".to_i(16)
     end
     alias_method :read_bignum_little, :read_uint256_little
 
