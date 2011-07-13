@@ -5,7 +5,7 @@
 
 SELF=`basename $0`
 
-remote_nodee() {
+remote_nodes() {
 	netstat -an |
 	awk '/8333/ && /ESTA/ { print $5 }' |
 	sed 's/[:.]\(8333\)$/ \1/'

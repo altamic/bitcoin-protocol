@@ -30,18 +30,20 @@ module Bitcoin::Protocol
 
     attr_reader :magic_number, :command, :length, :checksum, :payload
 
-    # adds these to the singleton through configuration
-    @@attributes = [ :magic_number, :command, :length, :checksum, :payload ]
-    @@defaults   = { :magic_number => [:MAGIC, ::BtcProto.current_network],
-                     :command      => :verack,
-                     :length       => 0,
-                     :checksum     => 0,
-                     :payload      => 0 }
-    @@types      = { :magic_number => :uint32_little,
-                     :command      => :null_padded_string_of_12_bytes,
-                     :length       => :int32_little,
-                     :checksum     => :int32_little,
-                     :payload      => [:fixed_string, :length] }
+    def self.write(stream, command)
+      # send header
+      stream.write_uint32_little(::BtcProto.current_network)
+      stream.write_null_padded_string(name(command), 12)
+
+      # TODO: find size for any given command
+      stream.write_int32_little(size(command))
+
+      # TODO: determine dump representation for any given command
+      strem.write_int32_little(compute_checksum_for(command.dump))
+
+      # send command
+      stream.write(command.dump)
+    end
 
     def self.read(stream)
       header       = Buffer.new(stream.readn(HEADER_SIZE))
@@ -58,9 +60,7 @@ module Bitcoin::Protocol
       BtcProto.class_for(:message, command).load(Buffer.new(payload))
     end
 
-
-    # In this module we define the common
-    # behaviour for a protocol message
+    # In this module we define the common behaviour for a protocol message
     #
     # - read a message from a stream
     # - returns a particular message when found
@@ -81,11 +81,6 @@ module Bitcoin::Protocol
       doubleSHA256(content)[0..3]
     end
 
-    # def magic_number(network)
-    # return nil if not NETWORKS.keys.include?(network)
-    # NETWORKS[network]
-    # end
-
     # check if buffer size is ok before
     def self.load(buffer)
       marshal(:read, buffer)
@@ -93,31 +88,39 @@ module Bitcoin::Protocol
 
     alias :restore :load
 
-    # def self.dump(buffer)
-      # check if buffer size is ok before
-      # marshal(:write, buffer)
-    # end
+    def name(command)
+      command.class.to_s.underscore.split('/').last
+    end
 
-    # def marshal(op, buffer)
-      # case op
-      # when :read
-        # attributes.each do |attribute|
-          # binary_op = "#{read}_#{types[attribute]}".to_sym
-          # self.send("#{attribute}=", buffer.send(binary_op))
-        # end
-      # when :write
-        # attributes.each do |attribute|
-          # binary_op = "#{write}_#{types[attribute]}".to_sym
-          # self.send("#{attribute}=", buffer.send(binary_op))
-        # end
-      # end
-    # end
+    def size(command)
+      case command.class
+      when BtcProto::Verack then 0
+      when BtcProto::Ping   then 0
+      when BtcProto::Reply  then 0
+      when BtcProto::Alert  then 0
+      when BtcProto::Getaddr then 0
+      when BtcProto::Checkorder then 0
+      when BtcProto::Submitorder then 0
 
-    # private :marshal
+      when BtcProto::Inv then n * (4 + 32) # inventory vectors
+      when BtcProto::Getdata then n * (4 + 32) # inventory vectors
 
-    # def size
-    # end
+      when BtcProto::Getblocks then n * (4 + 32)  + 32
 
+      when BtcProto::Addr then 
+      when BtcProto::Version then 
+      when BtcProto::Tx then  
+      when BtcProto::Blocks then
+        n = command.transactions.nil? 0 : command.transactions.size
+        inputs = 0
+        n.times do |i|
+          inputs = command.transactions[i].inputs.size
+          outputs = command.transactions[i].outputs.size
+        end
+        # n, j , k, l = 
+        4 + 32 + 32 + 4 + 4 + 4 + txs * (4 + inputs*(32 + 4) + outputs * (8 + script_len) + 4)
+      end
+    end
   end
 end
 

@@ -276,6 +276,8 @@ module Bitcoin::Protocol
       if has_const?(const_key.first) and const_key.size == 2
         key, value =[const_key.first, const_key.last]
         consts[key][value]
+      elsif not const_key.any?
+        []
       end
     when const_key.kind_of?(Proc) then
       const_key.call

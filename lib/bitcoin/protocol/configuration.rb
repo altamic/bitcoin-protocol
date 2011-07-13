@@ -15,6 +15,8 @@ Bitcoin::Protocol.configure do
 
   register_constant :UNIX_TIMESTAMP, lambda { Time.now.to_i }
   register_constant :RANDOM_64BITS,  lambda { rand(2**64) }
+  register_constant :RANDOM_32BITS,  lambda { rand(2**32) }
+
 
   # Types
   register_type :address do |t|
@@ -41,14 +43,14 @@ Bitcoin::Protocol.configure do
 
   register_type :transaction do |t|
     t.int32_little     :version, :default => :VERSION
-    t.tx_input_vector  :inputs
-    t.tx_output_vector :outputs
+    t.tx_input_vector  :inputs,  :default => []
+    t.tx_output_vector :outputs, :default => []
     t.uint32_little    :lock_time
   end
 
   register_constant :INVENTORY_TYPES, {:error => 0, :tx => 1, :block => 2}
 
-  register_type :inventory do |t|
+    register_type :inventory do |t|
     t.int32_little   :type, :default => [:INVENTORY_TYPES, :error]
     t.uint256_little :hash, :default => 0
   end
@@ -70,37 +72,37 @@ Bitcoin::Protocol.configure do
     m.int32_little   :starting_height, :default => nil
   end
 
-  register_message :verack, :alias => :version_ack
-
-  register_message :addr, :alias => :addresses, :size_limit => 1000 do |m|
-    m.address_vector :addresses
-  end
-
-  register_message :inv, :alias => :inventory, :size_limit => true do |m|
-    m.inventory_vector  :inventory
-  end
-
-  register_message :getdata, :alias => :get_data, :size_limit => true do |m|
-    m.inventory_vector  :inventory
-  end
-
-  register_message :getblocks, :alias => :get_blocks do |m|
-    m.block_locator  :locator
-    m.uint256_little :hash_stop
-  end
-
-  register_message :tx, :alias => :transaction do |m|
-    m.transaction   :transaction
-  end
-
   register_message :block do |m|
     m.int32_little        :version,             :default => :VERSION
     m.uint256_little      :hash_previous_block
     m.uint256_little      :hash_merkle_root
     m.uint32_little       :time,                :default => 0
     m.compact_target      :bits,                :default => 0
-    m.uint32_little       :nonce,               :default => 0
-    m.transaction_vector  :transactions
+    m.uint32_little       :nonce,               :default => :RANDOM_32BITS
+    m.transaction_vector  :transactions,        :default => []
+  end
+
+  register_message :tx, :alias => :transaction do |m|
+    m.transaction   :transaction
+  end
+
+  register_message :verack, :alias => :version_ack
+
+  register_message :addr, :alias => :addresses, :size_limit => 1000 do |m|
+    m.address_vector :addresses, :default => []
+  end
+
+  register_message :inv, :alias => :inventory, :size_limit => true do |m|
+    m.inventory_vector  :inventory, :default => []
+  end
+
+  register_message :getdata, :alias => :get_data, :size_limit => true do |m|
+    m.inventory_vector  :inventory, :default => []
+  end
+
+  register_message :getblocks, :alias => :get_blocks do |m|
+    m.block_locator  :locator
+    m.uint256_little :hash_stop
   end
 
   register_message :getaddr, :alias => :get_addresses
