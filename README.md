@@ -99,5 +99,5 @@ for their unparalleled Ruby software tools.
 Copyright
 =========
 
-© Copyright 2011 Michelangelo Altamore. See LICENCE for details.
+© Copyright 2011 Michelangelo Altamore. See LICENSE for details.
 
