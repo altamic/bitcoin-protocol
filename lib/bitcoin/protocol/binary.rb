@@ -182,6 +182,10 @@ module Bitcoin::Protocol
       readn(size).split(/\000/).first
     end
 
+    def write_null_padded_string(string, size)
+      write(string.ljust(size, 0.chr))
+    end
+
     private
     def readn_unpack(size, template)
       readn(size).unpack(template).first

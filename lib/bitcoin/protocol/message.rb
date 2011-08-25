@@ -33,16 +33,16 @@ module Bitcoin::Protocol
     def self.write(stream, command)
       # send header
       stream.write_uint32_little(::BtcProto.current_network)
-      stream.write_null_padded_string(name(command), 12)
+      stream.write_null_padded_string('verack', 12)
 
       # TODO: find size for any given command
-      stream.write_int32_little(size(command))
+      stream.write_int32_little(0)
 
       # TODO: determine dump representation for any given command
-      strem.write_int32_little(compute_checksum_for(command.dump))
+      stream.write_int32_little(compute_checksum_for(command.dump))
 
       # send command
-      stream.write(command.dump)
+      stream.write(Bitcoin::Protocol::Verack.dump)
     end
 
     def self.read(stream)
@@ -88,7 +88,7 @@ module Bitcoin::Protocol
 
     alias :restore :load
 
-    def name(command)
+    def self.name(command)
       command.class.to_s.underscore.split('/').last
     end
 
@@ -111,7 +111,7 @@ module Bitcoin::Protocol
       when BtcProto::Version then 
       when BtcProto::Tx then  
       when BtcProto::Blocks then
-        n = command.transactions.nil? 0 : command.transactions.size
+        n = command.transactions.any? ? command.transactions.size : 0
         inputs = 0
         n.times do |i|
           inputs = command.transactions[i].inputs.size

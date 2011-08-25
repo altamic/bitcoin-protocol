@@ -185,10 +185,11 @@ module Bitcoin::Protocol
         def dump
           str = ""
           attributes.each do |a|
-            attr_writer = "\#{a}="
+            attr_reader = "\#{a}"
             buffer_method = "write_\#{types[a]}".to_sym
-            send(attr_writer, send(buffer_method))
+            send(attr_reader, send(buffer_method))
           end
+          str
         end
       end
       EVAL
@@ -241,6 +242,18 @@ module Bitcoin::Protocol
             obj.send(attr_writer, buf.send(buffer_method))
           end
           obj
+        end
+
+        # return a string representation of the object
+        def self.dump
+          str = ""
+          obj = new
+          obj.attributes.each do |a|
+            attr_reader = "\#{a}"
+            buffer_method = "write_\#{obj.types[a]}".to_sym
+            str += obj.send(attr_reader, buf.send(buffer_method))
+          end
+          str
         end
       end
       EVAL
