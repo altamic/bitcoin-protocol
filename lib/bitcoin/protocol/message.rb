@@ -1,5 +1,6 @@
 class IO
   def read_exactly(n)
+    return nil if n == 0
     buf = read(n)
     fail EOFError if buf == nil
     return buf if buf.size == n
@@ -53,11 +54,15 @@ module Bitcoin::Protocol
       command      = header.read_null_padded_string(12).to_sym
       fail UnknownCommand if not BtcProto.proper_message_names.include?(command)
       length       = header.read_int32_little
-      checksum     = [header.read_int32_little].pack('V')
-      payload      = Buffer.new(stream.read_exactly(length)).content
-      fail BadPayload if not valid?(payload, checksum)
 
-      BtcProto.class_for(:message, command).load(Buffer.new(payload))
+      if length > 0
+        checksum     = [header.read_int32_little].pack('V')
+        payload      = Buffer.new(stream.read_exactly(length)).content
+        fail BadPayload if not valid?(payload, checksum)
+        BtcProto.class_for(:message, command).load(Buffer.new(payload))
+      elsif length == 0
+        BtcProto.class_for(:message, command).new
+      end
     end
 
     # In this module we define the common behaviour for a protocol message
